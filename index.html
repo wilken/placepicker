@@ -1,0 +1,35 @@
+<!DOCTYPE html>  
+<html>  
+    <head>  
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">  
+        <title>jQuery UI Placepicker</title>  
+        <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/ui-lightness/jquery-ui.css">  
+		<link rel="stylesheet" type="text/css" href="css/ui.placepicker.css">
+    </head>  
+    <body>
+		<form>
+			<div id="pick">
+			</div>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<div id="pick2">
+			</div>
+		</form>
+    	
+
+	 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>  
+	 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>  
+	    <script type="text/javascript" src="js/jquery.ui.placepicker.js"></script>
+	    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+
+		<script>
+		$("#pick").placepicker({latitude:10,longtitude:50})
+		$("#pick2").placepicker({latitude:0,longtitude:0})
+		</script>
+    </body>  
+</html>
