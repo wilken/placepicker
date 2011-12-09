@@ -5,85 +5,93 @@
 			longtitude: null,
 			width: "100%",
 			height: "300px",
-			popup: null
+			zoom: 5,
+		},
+		shared: {
+		  popup:null,
+		  map: null,
+		  marker: null,
+		  latLng: null,
 		},
 		_create: function() {
 			var self=this
-//			var lat = $('#'+this.element.attr('id')+'-lat').attr('value')
-//			var long = $('#'+this.element.attr('id')+'-long').attr('value')
-
 			$text=$("<div class='text'>No place selected"+self.element.attr('id')+"hey</div>")
 			$button=$("<img src='http://www.google.com/mapfiles/marker.png'></img>")
 			self.element.html($button)
 			$button.before($text)
-			self.options.popup=self._createPopup(self)
+			self._createPopup(self)
 
 			$button.click(function() {
-				self.options.popup.click(function(){
-					event.stopPropagation();
-				})
-				self.options.popup.css({left:self.element.offset().left+200})
-				self.options.popup.css({top:self.element.offset().top})
-				self.options.popup.appendTo(self.element)
+	   		
+				self.shared.popup.css({left:self.element.offset().left+200})
+				self.shared.popup.css({top:self.element.offset().top})
+				self.shared.popup.appendTo(self.element)
 				
-				var map = self._createMap(self)
+				self.shared.latLng = new google.maps.LatLng(self.options.latitude,self.options.longtitude)
+  			self.shared.mapOptions = {
+  				zoom: self.options.zoom,
+  				center: self.shared.latLng,
+  				mapTypeId: google.maps.MapTypeId.ROADMAP
+  			}
+  			self.shared.marker = new google.maps.Marker({
+  			    position: self.shared.latLng
+  			})
+
+  			self._createMap(self, self.shared.mapOptions)
+  			self._placeMarker(self, self.shared.latLng);
 				event.stopPropagation();
 			})
 			
 			//Remove popup if clicked outside popup
+			
 			$(document).click(function(){
-  			self.options.popup.remove()
+  			if( self.shared.popup != null) {
+    			self.shared.popup.remove()
+  			}
 			})
 			
 		},
 		_destroy: function() {
-			self.options.popup.remove()
-		},
-		_createMap: function(self, myOptions) {
-			var geocoder=new google.maps.Geocoder();
-			var myLatlng = new google.maps.LatLng(self.options.latitude,self.options.longtitude)
-			var myOptions = {
-				zoom: 12,
-				center: myLatlng,
-				mapTypeId: google.maps.MapTypeId.ROADMAP
+			if( self.shared.popup != null) {
+  			self.shared.popup.remove()
 			}
-			var marker = new google.maps.Marker({
-			    position: myLatlng
-			})
-			
-			var map = new google.maps.Map(self.options.popup.find("div.map")[0],myOptions)
-			google.maps.event.addListener(map, 'click', function(event) {
-		   		self._placeMarker(event.latLng, map, marker);
-				geocoder.geocode({latLng:event.latLng}, function(results, status) {
-					self.options.latitude=event.latLng.lat()
-					self.options.longtitude=event.latLng.lng()
-			    if (status == google.maps.GeocoderStatus.OK) {
-				   	if (results[0]) {
-				     	self.options.popup.find("input.adress").val(results[0].formatted_address)
-				   	}
-				  } else {
-			    		self.options.popup.find("input.adress").val("")
-				 	}
+		},
+		_createMap: function(self, options) {
+			var geocoder=new google.maps.Geocoder();
+			self.shared.map = new google.maps.Map(self.shared.popup.find("div.map")[0], options)
+
+			google.maps.event.addListener(self.shared.map, 'click', function(event) {
+		   		self._placeMarker(self, event.latLng);
+				  geocoder.geocode({latLng:event.latLng}, function(results, status) {
+					  self.options.latitude=event.latLng.lat()
+					  self.options.longtitude=event.latLng.lng()
+			      if (status == google.maps.GeocoderStatus.OK) {
+				   	  if (results[0]) {
+				     	  self.shared.popup.find("input.adress").val(results[0].formatted_address)
+				   	  }
+				    } else {
+			    	  self.shared.popup.find("input.adress").val("")
+				 	  }
 				})
 				
 		
 			})
-			return map
 		},
-		_placeMarker: function(location, map, marker) {
-			marker.setMap(map)
-			marker.setPosition(location)
-			map.panTo(location);
+		_placeMarker: function(self, location) {
+			self.shared.marker.setMap(self.shared.map)
+			self.shared.marker.setPosition(location)
+			self.shared.map.panTo(location);
 		},
 		_createPopup: function(self){
-			$popup=$("<div class='popup'><div class='map'>loading</div><div><input class='adress' type='text' value='type location'><input type='button' value='search'><input type='button' value='submit'></div></div>")
-			$popup.css({width:'400px'})
-			$popup.find("div.map").css({width: self.options.width,height: self.options.height})
-			$popup.find("input.adress").css({width:'281px',display:'inline'})
-			$popup.addClass('ui-dialog ui-corner-all')
-			$popup.addClass('ui-widget-content')
-			
-			return $popup
+			self.shared.popup=$("<div class='popup'><div class='map'>loading</div><div><input class='adress' type='text' value='type location'><input type='button' value='search'><input type='button' value='submit'></div></div>")
+			self.shared.popup.css({width:'400px'})
+			self.shared.popup.find("div.map").css({width: self.options.width,height: self.options.height})
+			self.shared.popup.find("input.adress").css({width:'281px',display:'inline'})
+			self.shared.popup.addClass('ui-dialog ui-corner-all')
+			self.shared.popup.addClass('ui-widget-content')
+			self.shared.popup.click(function(){
+				event.stopPropagation();
+			})
 		}
 	})
 })(jQuery);  
